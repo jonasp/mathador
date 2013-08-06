@@ -1,0 +1,44 @@
+/* app css stylesheet */
+
+@font-face {
+	font-family: 'Herr Von Muellerhoff';
+	font-style: normal;
+	font-weight: 400;
+	src: local('Herr Von Muellerhoff Regular'), local('HerrVonMuellerhoff-Regular'), url(../font/header.woff) format('woff');
+}
+
+body {
+	padding: 1em 3em;
+}
+
+#header #title {
+	font-family: 'Herr Von Muellerhoff', cursive;
+	font-size: 2.5em;
+	float: left;
+}
+
+#header #size {
+	float: right;
+	margin: 2.5em;
+}
+
+#main {
+	clear: both;
+}
+
+.lineNumber {
+	font-family: 'Courier New', Courier, monospace;
+}
+
+.lineNumber, .formula {
+	font-size: 1.7em;
+}
+
+#texinput {
+	margin: 1em 3em;
+	padding: 0.4em;
+	font-size: 1em;
+	width: 80%;
+	height: 1.2em;
+	resize: both;
+}

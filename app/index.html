@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en" ng-app="meth">
+<head>
+	<meta charset="utf-8">
+	<title>meth</title>
+
+	<!--peer.js-->
+	<script src="http://cdn.peerjs.com/0/peer.min.js"></script>
+
+	<!-- mathjax -->
+	<script type="text/x-mathjax-config">
+		MathJax.Hub.Config({
+			extensions: ["tex2jax.js"],
+			jax: ["input/TeX", "output/HTML-CSS"],
+			tex2jax: {
+				inlineMath: [ ['$','$'] ],
+				displayMath: [ ["\\[","\\]"] ],
+				processEscapes: true,
+			},
+			messageStyle: "none",
+			"HTML-CSS": { availableFonts: ["TeX"] }
+		});
+	</script>
+	<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML.js"></script>
+
+<link rel="stylesheet" href="css/app.css"/>
+</head>
+<body ng-controller="MethCtrl">
+	<div id="header">
+		<h1 id="title">Meth</h1>
+		<p id="size">Size: <input id="slider" type="range" min="1" max="30" value="10" ng-model="size"></p>
+	</div>
+	<div id="main" ng-repeat="line in lines">
+		<div ng-click="activate({{line.number}})" id="output{{line.number}}">
+			<span class="lineNumber">{{line.number + 1}}&gt;</span> <span class="formula" ng-resize="size" ng-mathjax="line.content"></span><br/>
+			<input id="texinput" focus="{{active}}" ng-show="active == line.number" ng-keydown="keydown($event, line.number)" type="text" ng-model="line.content"/>
+		</div>
+	</div>
+
+	<div ng-controller="PeerCtrl">
+		PeerID: {{peerid}}<br/>
+		Peers:
+		<div ng-repeat="peer in peers">
+			<div>{{peer}}</div></br>
+		</div>
+		<br/>
+		<button ng-click="send()"/>Send</button>
+		Message: {{message}}
+	</div>
+
+	<!-- In production use:
+	<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.0.7/angular.min.js"></script>
+	-->
+	<script src="lib/angular/angular-1.1.5.js"></script>
+	<script src="js/app.js"></script>
+	<script src="js/services.js"></script>
+	<script src="js/controllers.js"></script>
+	<script src="js/filters.js"></script>
+	<script src="js/directives.js"></script>
+</body>
+</html>
