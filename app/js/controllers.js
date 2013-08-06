@@ -2,8 +2,8 @@
 
 /* Controllers */
 
-angular.module('meth.controllers', []).
-	controller('MethCtrl',['$scope', function($scope) {
+angular.module('mathador.controllers', []).
+	controller('MathadorCtrl',['$scope', function($scope) {
 
 		$scope.lines = [
 			{ number: 0, content: "" }

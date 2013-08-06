@@ -3,7 +3,7 @@
 /* Directives */
 
 
-angular.module('meth.directives', []).
+angular.module('mathador.directives', []).
 	directive("ngMathjax", function() {
 		return {
 			restrict: "A",

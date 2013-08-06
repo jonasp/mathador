@@ -2,7 +2,7 @@
 
 /* Filters */
 
-angular.module('meth.filters', []).
+angular.module('mathador.filters', []).
 	filter('mathjax', ['version', function(version) {
 		return function(text) {
 			if (text === undefined) {

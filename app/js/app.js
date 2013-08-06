@@ -2,4 +2,4 @@
 
 
 // Declare app level module which depends on filters, and services
-angular.module('meth', ['meth.filters', 'meth.services', 'meth.directives', 'meth.controllers']);
+angular.module('mathador', ['mathador.filters', 'mathador.services', 'mathador.directives', 'mathador.controllers']);
