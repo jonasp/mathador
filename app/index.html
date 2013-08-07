@@ -43,13 +43,18 @@
 		<div ng-show="connectionStatus == 'connected'">
 			Add: <input id ="" label="add" type="text" ng-model="friendid"/><button ng-click="add()">add</button><br/>
 			Peers:
-			<div ng-repeat="peer in peers">
-				<div>{{peer}}</div></br>
-			</div>
+			<span ng-repeat="p in peers">
+				<span>{{p.peer}}</span><span ng-hide="$last">, </span>
+			</span>
 			<br/>
-			<button ng-click="send()"/>Send</button>
-			Message: {{message}}
+			<div id="chat" ng-controller="ChatCtrl">
+				<form ng-submit="send()">
+					Message: <input id="chatinput" type="text" ng-model="chatinput"/>
+				</form>
+				<div ng-repeat="m in messages">{{m}}</div>
+			</div>
 		</div>
+		<div id="error" ng-show="error">Error: {{error}}</div>
 	</div>
 
 	<!-- In production use:

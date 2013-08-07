@@ -54,16 +54,18 @@ angular.module('mathador.controllers', []).
 			}
 		}
 	}]).
-	controller('PeerCtrl',['$scope', function($scope) {
+	controller('ChatCtrl', ['$scope', 'peerjs', function($scope, peerjs) {
+		$scope.chatinput = "";
+		$scope.messages = ["---"];
+	}]).
+	controller('PeerCtrl',['$scope', 'peerjs', function($scope, peerjs) {
 
-		//var peer = new Peer('some-id', {host: 'localhost', port: 9000});
-		
-		$scope.peer = {};
-		$scope.peers = [];
+		var peer = {};
+		$scope.peers = {};
 		$scope.peerid="";
-		$scope.connectionStatus = "disconnected";
 
-		$scope.$watch('connectionStatus', function(value) {
+		peerjs.onConnectionChange(function(value) {
+			$scope.connectionStatus = value;
 			switch (value) {
 				case "disconnected": 
 					$scope.buttonMsg = "go online";
@@ -75,35 +77,71 @@ angular.module('mathador.controllers', []).
 					$scope.buttonMsg = "go offline";
 					break;
 			}
+			if ($scope.$root.$$phase != '$apply') {
+				$scope.$apply();
+			}
+		});
+
+		peerjs.onError(function(error) {
+			$scope.error = error;
+			$scope.$apply();
+		});
+
+		peerjs.onPeersChange(function(peers) {
+			$scope.peers = peers;
 		});
 
 		$scope.connect = function() {
-			if ($scope.connectionStatus === "disconnected") {
+			if (peerjs.connection === "disconnected") {
 				if ($scope.peerid === "") {
 					alert("enter name!");
 				} else {
-					$scope.buttonMsg = "connecting";
-					$scope.connectionStatus = "connecting";
-					$scope.peer = new Peer($scope.peerid, { key: '46505tj9a6zp8pvi', debug: true });
+					$scope.error = "";
+					peerjs.init($scope.peerid);
+					peer = peerjs.peer;
 
-					$scope.peer.on('open', function(id) {
-						$scope.connectionStatus = "connected";
-						$scope.$apply();
+					peer.on('connection', function(connection, meta) {
+						handleConnection(connection);
 					});
 				}
 			} else {
-				$scope.connectionStatus = "disconnected";
-				$scope.peer.destroy();
+				peerjs.disconnect();
 			}
 		};
 
 		$scope.add = function() {
-			if ($scope.connectionStatus === "connected" && $scope.friendid != "") {
-				$scope.peer.on('error', function(error) {
-					alert(error);
+			if (peerjs.connection === "connected" && $scope.friendid != "") {
+				var dataConnection = peer.connect($scope.friendid);
+				handleConnection(dataConnection);	
+			}
+		}
+
+		$scope.send = function() {
+			if (peerjs.connection === "connected" && $scope.chatinput != "") {
+				broadcast({
+					type: 'chat',
+					value: $scope.chatinput
 				});
+				pushMessage($scope.peerid + ': ' + $scope.chatinput);
+				$scope.chatinput = "";
 			}
 		}
 
 
+
+		function broadcast(data) {
+			for (var i in $scope.peers) {
+				var conn = $scope.peers[i];
+				if (conn.open) {
+					conn.send(data);
+				}
+			}
+		}
+
+		function pushMessage(msg) {
+			$scope.messages.push(msg);
+			while ($scope.messages.length > 7) {
+				$scope.messages.shift();
+			}
+		}
 	}]);

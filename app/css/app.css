@@ -42,3 +42,8 @@ body {
 	height: 1.2em;
 	resize: both;
 }
+
+#error {
+	padding-top: 1em;
+	color: #ff0000;
+}
