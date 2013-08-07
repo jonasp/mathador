@@ -43,6 +43,9 @@ body {
 	resize: both;
 }
 
+#peerid {
+	width: 10em;
+
 #error {
 	padding-top: 1em;
 	color: #ff0000;

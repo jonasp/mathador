@@ -39,7 +39,11 @@
 
 	<div ng-controller="PeerCtrl">
 		<div ng-init="test='testing'"></div>
-		Name: <input id="" label="name" type="text" ng-model="peerid" /> <button ng-click="connect()" ng-init="buttonMsg='go online'">{{buttonMsg}}</button><br/>
+		<form ng-submit="connect()">
+			Name:
+			<input id="peerid" label="name" type="text" ng-model="peerid" ng-disabled="connectionStatus == 'connecting' || connectionStatus == 'connected'" />
+			<button ng-init="buttonMsg='go online'">{{buttonMsg}}</button><br/>
+		</form>
 		<div ng-show="connectionStatus == 'connected'">
 			Add: <input id ="" label="add" type="text" ng-model="friendid"/><button ng-click="add()">add</button><br/>
 			Peers:

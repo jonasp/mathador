@@ -57,12 +57,40 @@ angular.module('mathador.controllers', []).
 	controller('ChatCtrl', ['$scope', 'peerjs', function($scope, peerjs) {
 		$scope.chatinput = "";
 		$scope.messages = ["---"];
+
+		peerjs.onData(function (conn, data) {
+			console.log("onData");
+			console.log(data);
+			if (data.type = 'chat') {
+				pushMessage(conn.peer + ': ' + data.value);
+				$scope.$apply();
+			}
+		});
+
+		$scope.send = function() {
+			if (peerjs.connection === "connected" && $scope.chatinput != "") {
+				peerjs.broadcast({
+					type: 'chat',
+					value: $scope.chatinput
+				});
+				pushMessage($scope.peerid + ': ' + $scope.chatinput);
+				$scope.chatinput = "";
+			}
+		}
+
+		function pushMessage(msg) {
+			$scope.messages.push(msg);
+			while ($scope.messages.length > 7) {
+				$scope.messages.shift();
+			}
+		}
 	}]).
 	controller('PeerCtrl',['$scope', 'peerjs', function($scope, peerjs) {
 
 		var peer = {};
 		$scope.peers = {};
 		$scope.peerid="";
+		$scope.connectionStatus = 'disconnected';
 
 		peerjs.onConnectionChange(function(value) {
 			$scope.connectionStatus = value;
@@ -77,6 +105,8 @@ angular.module('mathador.controllers', []).
 					$scope.buttonMsg = "go offline";
 					break;
 			}
+			// TODO: find a nicer solution for this.
+			// investigate where the error comes from.
 			if ($scope.$root.$$phase != '$apply') {
 				$scope.$apply();
 			}
@@ -84,11 +114,24 @@ angular.module('mathador.controllers', []).
 
 		peerjs.onError(function(error) {
 			$scope.error = error;
-			$scope.$apply();
+			// TODO: find a nicer solution for this.
+			// investigate where the error comes from.
+			if ($scope.$root.$$phase != '$apply') {
+				$scope.$apply();
+			}
 		});
 
+
 		peerjs.onPeersChange(function(peers) {
-			$scope.peers = peers;
+			$scope.peers = {};
+			for (var i in peers) {
+				$scope.peers[i] = peers[i];
+			}
+			// TODO: find a nicer solution for this.
+			// client initiating the closing doesn't need to apply but the peer does.
+			if ($scope.$root.$$phase != '$apply') {
+				$scope.$apply();
+			}
 		});
 
 		$scope.connect = function() {
@@ -98,11 +141,7 @@ angular.module('mathador.controllers', []).
 				} else {
 					$scope.error = "";
 					peerjs.init($scope.peerid);
-					peer = peerjs.peer;
-
-					peer.on('connection', function(connection, meta) {
-						handleConnection(connection);
-					});
+					peer = peerjs.peer; //TODO delete
 				}
 			} else {
 				peerjs.disconnect();
@@ -111,37 +150,9 @@ angular.module('mathador.controllers', []).
 
 		$scope.add = function() {
 			if (peerjs.connection === "connected" && $scope.friendid != "") {
-				var dataConnection = peer.connect($scope.friendid);
-				handleConnection(dataConnection);	
-			}
-		}
-
-		$scope.send = function() {
-			if (peerjs.connection === "connected" && $scope.chatinput != "") {
-				broadcast({
-					type: 'chat',
-					value: $scope.chatinput
-				});
-				pushMessage($scope.peerid + ': ' + $scope.chatinput);
-				$scope.chatinput = "";
+				peerjs.connect($scope.friendid);
 			}
 		}
 
 
-
-		function broadcast(data) {
-			for (var i in $scope.peers) {
-				var conn = $scope.peers[i];
-				if (conn.open) {
-					conn.send(data);
-				}
-			}
-		}
-
-		function pushMessage(msg) {
-			$scope.messages.push(msg);
-			while ($scope.messages.length > 7) {
-				$scope.messages.shift();
-			}
-		}
 	}]);

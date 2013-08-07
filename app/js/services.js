@@ -8,9 +8,11 @@
 angular.module('mathador.services', []).
 	factory('peerjs', function() {
 		var peerjs = {
+			peers: [],
 			connection: "disconnected",
 			connectionCallbacks: [],
 			errorCallbacks: [],
+			dataCallbacks: [],
 			peersCallbacks: []
 		};
 
@@ -19,7 +21,7 @@ angular.module('mathador.services', []).
 				this.peer.destory();
 			}
 			this.changeConnection("connecting");
-			this.peer = new Peer(id, { key: '46505tj9a6zp8pvi', debug: 'true'});
+			this.peer = new Peer(id, { key: '46505tj9a6zp8pvi'});
 
 			this.peer.on('open', function(id) {
 				peerjs.changeConnection("connected");
@@ -29,6 +31,17 @@ angular.module('mathador.services', []).
 				peerjs.changeConnection("disconnected");
 				peerjs.error(error.type);
 			});
+
+			this.peer.on('connection', function(connection, meta) {
+				peerjs.handleConnection(connection);
+			});
+		}
+
+		peerjs.connect = function (id) {
+			var dataConnection = peerjs.peer.connect(id);
+			if (typeof(dataConnection) != 'undefined') {
+				this.handleConnection(dataConnection);	
+			}
 		}
 
 		peerjs.disconnect = function () {
@@ -38,31 +51,37 @@ angular.module('mathador.services', []).
 			}
 		}
 
-		function handleConnection(c) {
-			c.on('data', function(data) {
-				if (data.type = 'chat') {
-					pushMessage(c.peer + ': ' + data.value);
-					$scope.$apply();
+		peerjs.broadcast = function (data) {
+			for (var i in this.peers) {
+				var conn = this.peers[i];
+				if (conn.open) {
+					console.log("sending data: " + data);
+					conn.send(data);
+				}
+			}
+		}
+
+		peerjs.handleConnection = function (c) {
+			c.on('data', function(d) {
+				for (var i = 0; i < peerjs.dataCallbacks.length; i++) {
+					console.log("function data:");
+					console.log(d);
+					peerjs.dataCallbacks[i](c, d);
 				}
 			});
 
 			c.on('error', function(error) {
-				$scope.error = error.type;
-				//$scope.$apply();
+				peerjs.error(error.type);
 			});
 
 			c.on('open', function() {
-				$scope.peers[c.peer] = c;
-				//$scope.$apply();
+				peerjs.peers[c.peer] = c;
+				peerjs.changePeers(peerjs.peers);
 			});
 
 			c.on('close', function() {
-				$scope.peers[c.peer] = {};
-				// TODO: find a nicer solution for this.
-				// client initiating the closing doesn't need to apply but the peer does.
-				if ($scope.$root.$$phase != '$apply') {
-					$scope.$apply();
-				}
+				peerjs.peers[c.peer] = {};
+				peerjs.changePeers(peerjs.peers);
 			});
 		}
 
@@ -75,6 +94,10 @@ angular.module('mathador.services', []).
 
 		peerjs.onConnectionChange = function(fn) {
 			this.connectionCallbacks.push(fn);
+		};
+
+		peerjs.onData = function (fn) {
+			this.dataCallbacks.push(fn);
 		};
 
 		peerjs.error = function (error) {
