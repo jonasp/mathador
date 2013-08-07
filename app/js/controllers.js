@@ -33,11 +33,12 @@ angular.module('mathador.controllers', []).
 			if ($event.keyCode === 8) { // backspace
 				if ($scope.lines[$scope.active].content === "" && $scope.lines.length > 1) {
 					$scope.activate($scope.active-1);
+					$event.preventDefault();
 				}
 			}
 			if ($event.keyCode === 13) { // enter
 				if ($scope.lines[lineNumber].content == "") {
-					console.log("empty - do nothing");
+					// empty - do nothing
 				} else {
 					var nextLine = "";
 					if ($event.shiftKey) {
@@ -83,7 +84,7 @@ angular.module('mathador.controllers', []).
 				} else {
 					$scope.buttonMsg = "connecting";
 					$scope.connectionStatus = "connecting";
-					$scope.peer = new Peer($scope.peerid, { key: 'dn4z2c42g7o561or', debug: true });
+					$scope.peer = new Peer($scope.peerid, { key: '46505tj9a6zp8pvi', debug: true });
 
 					$scope.peer.on('open', function(id) {
 						$scope.connectionStatus = "connected";
@@ -97,10 +98,7 @@ angular.module('mathador.controllers', []).
 		};
 
 		$scope.add = function() {
-			console.log($scope.connectionStatus);
-			console.log($scope.friendid);
 			if ($scope.connectionStatus === "connected" && $scope.friendid != "") {
-				console.log($scope.peer.connect($scope.friendid));
 				$scope.peer.on('error', function(error) {
 					alert(error);
 				});

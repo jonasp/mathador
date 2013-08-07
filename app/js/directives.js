@@ -4,6 +4,21 @@
 
 
 angular.module('mathador.directives', []).
+	directive("noBackspace", function() {
+		return function(scope, elem, attr) {
+			elem.bind('keydown', function(event) {
+				var nodeName = event.target.nodeName.toLowerCase();
+				if (event.keyCode === 8) {
+					if ((nodeName === 'input' && event.target.type === 'text') ||
+				       nodeName === 'textarea') {
+						// do nothing
+					} else {
+						event.preventDefault();
+					}
+				}
+			});
+		};
+	}).
 	directive("ngMathjax", function() {
 		return {
 			restrict: "A",
