@@ -57,13 +57,55 @@ angular.module('mathador.controllers', []).
 
 		//var peer = new Peer('some-id', {host: 'localhost', port: 9000});
 		
+		$scope.peer = {};
 		$scope.peers = [];
-		$scope.peerid = ""
+		$scope.peerid="";
+		$scope.connectionStatus = "disconnected";
 
-		var peer = new Peer({ key: 'dn4z2c42g7o561or', debug: true });
+		$scope.$watch('connectionStatus', function(value) {
+			switch (value) {
+				case "disconnected": 
+					$scope.buttonMsg = "go online";
+					break;
+				case "connecting":
+					$scope.buttonMsg = "connecting";
+					break;
+				case "connected":
+					$scope.buttonMsg = "go offline";
+					break;
+			}
+		});
 
-		peer.on('open', function(id) {
-			$scope.peerid = id;
-			$scope.$apply();
-		})
+		$scope.connect = function() {
+			if ($scope.connectionStatus === "disconnected") {
+				if ($scope.peerid === "") {
+					alert("enter name!");
+				} else {
+					$scope.buttonMsg = "connecting";
+					$scope.connectionStatus = "connecting";
+					$scope.peer = new Peer($scope.peerid, { key: 'dn4z2c42g7o561or', debug: true });
+
+					$scope.peer.on('open', function(id) {
+						$scope.connectionStatus = "connected";
+						$scope.$apply();
+					});
+				}
+			} else {
+				$scope.connectionStatus = "disconnected";
+				$scope.peer.destroy();
+			}
+		};
+
+		$scope.add = function() {
+			console.log($scope.connectionStatus);
+			console.log($scope.friendid);
+			if ($scope.connectionStatus === "connected" && $scope.friendid != "") {
+				console.log($scope.peer.connect($scope.friendid));
+				$scope.peer.on('error', function(error) {
+					alert(error);
+				});
+			}
+		}
+
+
 	}]);

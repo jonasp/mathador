@@ -38,14 +38,18 @@
 	</div>
 
 	<div ng-controller="PeerCtrl">
-		PeerID: {{peerid}}<br/>
-		Peers:
-		<div ng-repeat="peer in peers">
-			<div>{{peer}}</div></br>
+		<div ng-init="test='testing'"></div>
+		Name: <input id="" label="name" type="text" ng-model="peerid" /> <button ng-click="connect()" ng-init="buttonMsg='go online'">{{buttonMsg}}</button><br/>
+		<div ng-show="connectionStatus == 'connected'">
+			Add: <input id ="" label="add" type="text" ng-model="friendid"/><button ng-click="add()">add</button><br/>
+			Peers:
+			<div ng-repeat="peer in peers">
+				<div>{{peer}}</div></br>
+			</div>
+			<br/>
+			<button ng-click="send()"/>Send</button>
+			Message: {{message}}
 		</div>
-		<br/>
-		<button ng-click="send()"/>Send</button>
-		Message: {{message}}
 	</div>
 
 	<!-- In production use:
