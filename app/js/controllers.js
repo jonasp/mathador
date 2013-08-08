@@ -3,7 +3,7 @@
 /* Controllers */
 
 angular.module('mathador.controllers', []).
-	controller('MathadorCtrl',['$scope', 'peerjs', function($scope, peerjs) {
+	controller('MathadorCtrl',['$scope', 'broadcast', function($scope, broadcast) {
 
 		$scope.lines = [
 			{ number: 0, content: "" }
@@ -20,7 +20,7 @@ angular.module('mathador.controllers', []).
 			}
 		}
 
-		peerjs.onData(function (conn, data) {
+		broadcast.onData(function (conn, data) {
 			if (data.app === 'tex') {
 				if (data.type === 'activation') {
 					// incoming has more lines than us
@@ -44,7 +44,7 @@ angular.module('mathador.controllers', []).
 					removeLine($scope.lines, $scope.active);
 				}
 				$scope.active = lineNumber;
-				peerjs.broadcast({
+				broadcast.send({
 					app: 'tex',
 					type: 'activation',
 					lineNumber: $scope.active
@@ -73,7 +73,7 @@ angular.module('mathador.controllers', []).
 						content: nextLine
 					})
 					$scope.active++;
-					peerjs.broadcast({
+					broadcast.send({
 						app: 'tex',
 						type: 'activation',
 						lineNumber: $scope.active
@@ -84,7 +84,7 @@ angular.module('mathador.controllers', []).
 
 		$scope.keyup = function ($event, lineNumber) {
 			if ($event.keyCode != 13) {
-				peerjs.broadcast({
+				broadcast.send({
 					app: 'tex',
 					type: 'update',
 					lineNumber: $scope.active,
@@ -94,13 +94,13 @@ angular.module('mathador.controllers', []).
 		}
 	}]).
 
-	controller('PointerCtrl', ['$scope', 'peerjs', '$timeout', function($scope, peerjs, $timeout) {
+	controller('PointerCtrl', ['$scope', 'broadcast', '$timeout', function($scope, broadcast, $timeout) {
 		$scope.transmit = false;
 		$scope.pointers = {};
 
 		//$scope.pointers["test"] = { x: 100, y: 100, color: "black" };
 
-		peerjs.onData(function (conn, data) {
+		broadcast.onData(function (conn, data) {
 			if (data.app === 'pointer') {
 				if (data.type === 'move') {
 					$scope.pointers[conn.peer] = {
@@ -127,7 +127,7 @@ angular.module('mathador.controllers', []).
 
 		document.onmousedown = function (event) {
 			if ($scope.transmit) {
-				peerjs.broadcast({
+				broadcast.send({
 					app: 'pointer',
 					type: 'click'
 				});
@@ -136,7 +136,7 @@ angular.module('mathador.controllers', []).
 
 		document.onmousemove = function (event) {
 			if ($scope.transmit) {
-				peerjs.broadcast({
+				broadcast.send({
 					app: 'pointer',
 					type: 'move',
 					pos: {x: event.x, y: event.y}
@@ -145,7 +145,7 @@ angular.module('mathador.controllers', []).
 		};
 	}]).
 
-	controller('ChatCtrl', ['$scope', 'peerjs', function($scope, peerjs) {
+	controller('ChatCtrl', ['$scope', 'broadcast', function($scope, broadcast) {
 		$scope.chatinput = "";
 		$scope.messages = [{
 			sender: "",
@@ -153,7 +153,7 @@ angular.module('mathador.controllers', []).
 			message: "---"
 		} ];
 
-		peerjs.onData(function (conn, data) {
+		broadcast.onData(function (conn, data) {
 			if (data.app === 'chat') {
 				pushMessage({
 					sender: conn.peer,
@@ -165,8 +165,8 @@ angular.module('mathador.controllers', []).
 		});
 
 		$scope.send = function() {
-			if (peerjs.connection === "connected" && $scope.chatinput != "") {
-				peerjs.broadcast({
+			if (broadcast.connection === "connected" && $scope.chatinput != "") {
+				broadcast.send({
 					app: 'chat',
 					value: $scope.chatinput
 				});
@@ -187,14 +187,14 @@ angular.module('mathador.controllers', []).
 		}
 	}]).
 
-	controller('PeerCtrl',['$scope', 'peerjs', 'colorpool', function($scope, peerjs, colorpool) {
+	controller('PeerCtrl',['$scope', 'broadcast', 'colorpool', function($scope, broadcast, colorpool) {
 
 		var peer = {};
 		$scope.peers = {};
 		$scope.peerid="";
 		$scope.connectionStatus = 'disconnected';
 
-		peerjs.onConnectionChange(function(value) {
+		broadcast.onConnectionChange(function(value) {
 			$scope.connectionStatus = value;
 			switch (value) {
 				case "disconnected": 
@@ -214,7 +214,7 @@ angular.module('mathador.controllers', []).
 			}
 		});
 
-		peerjs.onError(function(error) {
+		broadcast.onError(function(error) {
 			$scope.error = error;
 			// TODO: find a nicer solution for this.
 			// investigate where the error comes from.
@@ -224,7 +224,7 @@ angular.module('mathador.controllers', []).
 		});
 
 
-		peerjs.onPeersChange(function(peers) {
+		broadcast.onPeersChange(function(peers) {
 			$scope.peers = {};
 			for (var i in peers) {
 				$scope.peers[i] = peers[i];
@@ -237,21 +237,21 @@ angular.module('mathador.controllers', []).
 		});
 
 		$scope.connect = function() {
-			if (peerjs.connection === "disconnected") {
+			if (broadcast.connection === "disconnected") {
 				if ($scope.peerid === "") {
 					alert("enter name!");
 				} else {
 					$scope.error = "";
-					peerjs.init($scope.peerid);
+					broadcast.init($scope.peerid);
 				}
 			} else {
-				peerjs.disconnect();
+				broadcast.disconnect();
 			}
 		};
 
 		$scope.add = function() {
-			if (peerjs.connection === "connected" && $scope.friendid != "") {
-				peerjs.connect($scope.friendid);
+			if (broadcast.connection === "connected" && $scope.friendid != "") {
+				broadcast.connect($scope.friendid);
 			}
 		}
 	}]);

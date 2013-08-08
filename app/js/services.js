@@ -44,8 +44,8 @@ angular.module('mathador.services', []).
 		
 		return colorpool;
 	}).
-	factory('peerjs', ['colorpool', function(colorpool) {
-		var peerjs = {
+	factory('broadcast', ['colorpool', function(colorpool) {
+		var broadcast = {
 			peers: [],
 			connection: "disconnected",
 			connectionCallbacks: [],
@@ -54,7 +54,7 @@ angular.module('mathador.services', []).
 			peersCallbacks: []
 		};
 
-		peerjs.init = function(id) {
+		broadcast.init = function(id) {
 			if (typeof(this.peer) != 'undefined' && !this.peer.destroyed) {
 				this.peer.destory();
 			}
@@ -62,34 +62,34 @@ angular.module('mathador.services', []).
 			this.peer = new Peer(id, { key: '46505tj9a6zp8pvi'});
 
 			this.peer.on('open', function(id) {
-				peerjs.changeConnection("connected");
+				broadcast.changeConnection("connected");
 			});
 
 			this.peer.on('error', function(error) {
-				peerjs.changeConnection("disconnected");
-				peerjs.error(error.type);
+				broadcast.changeConnection("disconnected");
+				broadcast.error(error.type);
 			});
 
 			this.peer.on('connection', function(connection, meta) {
-				peerjs.handleConnection(connection);
+				broadcast.handleConnection(connection);
 			});
 		}
 
-		peerjs.connect = function (id) {
-			var dataConnection = peerjs.peer.connect(id);
+		broadcast.connect = function (id) {
+			var dataConnection = broadcast.peer.connect(id);
 			if (typeof(dataConnection) != 'undefined') {
 				this.handleConnection(dataConnection);	
 			}
 		}
 
-		peerjs.disconnect = function () {
+		broadcast.disconnect = function () {
 			if (typeof(this.peer) != 'undefined' && !this.peer.destroyed) {
 				this.peer.destroy();
 				this.changeConnection("disconnected");
 			}
 		}
 
-		peerjs.broadcast = function (data) {
+		broadcast.send = function (data) {
 			for (var i in this.peers) {
 				var conn = this.peers[i];
 				if (conn.open) {
@@ -98,65 +98,65 @@ angular.module('mathador.services', []).
 			}
 		}
 
-		peerjs.handleConnection = function (c) {
+		broadcast.handleConnection = function (c) {
 			c.on('data', function(d) {
-				for (var i = 0; i < peerjs.dataCallbacks.length; i++) {
-					peerjs.dataCallbacks[i](c, d);
+				for (var i = 0; i < broadcast.dataCallbacks.length; i++) {
+					broadcast.dataCallbacks[i](c, d);
 				}
 			});
 
 			c.on('error', function(error) {
-				peerjs.error(error.type);
+				broadcast.error(error.type);
 			});
 
 			c.on('open', function() {
 				c.color = colorpool.get(c.peer);
-				peerjs.peers[c.peer] = c;
-				peerjs.changePeers(peerjs.peers);
+				broadcast.peers[c.peer] = c;
+				broadcast.changePeers(broadcast.peers);
 			});
 
 			c.on('close', function() {
 				colorpool.release(c.peer);
-				peerjs.peers[c.peer] = {};
-				peerjs.changePeers(peerjs.peers);
+				broadcast.peers[c.peer] = {};
+				broadcast.changePeers(broadcast.peers);
 			});
 		}
 
-		peerjs.changeConnection = function (value) {
+		broadcast.changeConnection = function (value) {
 			for (var i = 0; i < this.connectionCallbacks.length; i++) {
 				this.connectionCallbacks[i](value);
 			}
 			this.connection = value;
 		}
 
-		peerjs.onConnectionChange = function(fn) {
+		broadcast.onConnectionChange = function(fn) {
 			this.connectionCallbacks.push(fn);
 		};
 
-		peerjs.onData = function (fn) {
+		broadcast.onData = function (fn) {
 			this.dataCallbacks.push(fn);
 		};
 
-		peerjs.error = function (error) {
+		broadcast.error = function (error) {
 			for (var i = 0; i < this.errorCallbacks.length; i++) {
 				this.errorCallbacks[i](error);
 			}
 		}
 
-		peerjs.onError = function (fn) {
+		broadcast.onError = function (fn) {
 			this.errorCallbacks.push(fn);
 		};
 
-		peerjs.changePeers = function (peers) {
+		broadcast.changePeers = function (peers) {
 			for (var i = 0; i < this.peersCallbacks.length; i++) {
 				this.peersCallbacks[i](peers);
 			}
 		}
 
-		peerjs.onPeersChange = function (fn) {
+		broadcast.onPeersChange = function (fn) {
 			this.peersCallbacks.push(fn);
 		}
 
-		return peerjs;
+		return broadcast;
 	}]).
   value('version', '0.1');
