@@ -3,7 +3,7 @@
 /* Controllers */
 
 angular.module('mathador.controllers', []).
-	controller('MathadorCtrl',['$scope', function($scope) {
+	controller('MathadorCtrl',['$scope', 'peerjs', function($scope, peerjs) {
 
 		$scope.lines = [
 			{ number: 0, content: "" }
@@ -20,12 +20,35 @@ angular.module('mathador.controllers', []).
 			}
 		}
 
+		peerjs.onData(function (conn, data) {
+			if (data.app === 'tex') {
+				if (data.type === 'activation') {
+					// incoming has more lines than us
+					for (var i = $scope.lines.length; data.lineNumber >= $scope.lines.length; i++) {
+						$scope.lines.push({ number: i, content: ""});
+					}
+					$scope.$apply();
+					console.log(conn.peer + ' activated line ' + data.lineNumber);
+				}
+
+				if (data.type === 'update') {
+					$scope.lines[data.lineNumber].content = data.content;
+					$scope.$apply();
+				}
+			}
+		});
+
 		$scope.activate = function(lineNumber) {
 			if ($scope.active != lineNumber) {
 				if ($scope.lines[$scope.active].content === "") {
 					removeLine($scope.lines, $scope.active);
 				}
 				$scope.active = lineNumber;
+				peerjs.broadcast({
+					app: 'tex',
+					type: 'activation',
+					lineNumber: $scope.active
+				});
 			}
 		}
 
@@ -50,19 +73,66 @@ angular.module('mathador.controllers', []).
 						content: nextLine
 					})
 					$scope.active++;
+					peerjs.broadcast({
+						app: 'tex',
+						type: 'activation',
+						lineNumber: $scope.active
+					});
 				}
 			}
 		}
+
+		$scope.keyup = function ($event, lineNumber) {
+			if ($event.keyCode != 13) {
+				peerjs.broadcast({
+					app: 'tex',
+					type: 'update',
+					lineNumber: $scope.active,
+					content: $scope.lines[$scope.active].content
+				});
+			}
+		}
+	}]).
+	controller('PointerCtrl', ['$scope', 'peerjs', function($scope, peerjs) {
+		$scope.transmit = false;
+		$scope.pointers = {};
+
+		peerjs.onData(function (conn, data) {
+			if (data.app === 'pointer') {
+				console.log("data");
+				$scope.pointers[conn.peer] = {
+					x: data.pos.x,
+					y: data.pos.y,
+					color: conn.color	
+				};
+			}
+			$scope.$apply();
+		});
+
+		document.onmousemove = function (event) {
+			if ($scope.transmit) {
+				peerjs.broadcast({
+					app: 'pointer',
+					pos: {x: event.x, y: event.y}
+				});
+			}
+		};
 	}]).
 	controller('ChatCtrl', ['$scope', 'peerjs', function($scope, peerjs) {
 		$scope.chatinput = "";
-		$scope.messages = ["---"];
+		$scope.messages = [{
+			sender: "",
+			color: "",
+			message: "---"
+		} ];
 
 		peerjs.onData(function (conn, data) {
-			console.log("onData");
-			console.log(data);
-			if (data.type = 'chat') {
-				pushMessage(conn.peer + ': ' + data.value);
+			if (data.app === 'chat') {
+				pushMessage({
+					sender: conn.peer,
+					color: conn.color,
+					message: data.value
+				});
 				$scope.$apply();
 			}
 		});
@@ -70,10 +140,14 @@ angular.module('mathador.controllers', []).
 		$scope.send = function() {
 			if (peerjs.connection === "connected" && $scope.chatinput != "") {
 				peerjs.broadcast({
-					type: 'chat',
+					app: 'chat',
 					value: $scope.chatinput
 				});
-				pushMessage($scope.peerid + ': ' + $scope.chatinput);
+				pushMessage({
+					sender: $scope.peerid,
+					color: "black",
+					message: $scope.chatinput
+				});
 				$scope.chatinput = "";
 			}
 		}
@@ -85,7 +159,7 @@ angular.module('mathador.controllers', []).
 			}
 		}
 	}]).
-	controller('PeerCtrl',['$scope', 'peerjs', function($scope, peerjs) {
+	controller('PeerCtrl',['$scope', 'peerjs', 'colorpool', function($scope, peerjs, colorpool) {
 
 		var peer = {};
 		$scope.peers = {};
@@ -141,7 +215,6 @@ angular.module('mathador.controllers', []).
 				} else {
 					$scope.error = "";
 					peerjs.init($scope.peerid);
-					peer = peerjs.peer; //TODO delete
 				}
 			} else {
 				peerjs.disconnect();

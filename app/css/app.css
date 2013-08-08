@@ -17,7 +17,7 @@ body {
 	float: left;
 }
 
-#header #size {
+#header #rightHeader {
 	float: right;
 	margin: 2.5em;
 }
@@ -45,8 +45,19 @@ body {
 
 #peerid {
 	width: 10em;
+}
 
 #error {
 	padding-top: 1em;
 	color: #ff0000;
+}
+
+.pointer {
+	z-index: 1000;
+	position: absolute;
+	left: 400px;
+	top: 400px;
+	/*background-image: url(../img/cursor.svg);*/
+	/*color: red;*/
+	width: 15.140625px;
 }

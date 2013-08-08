@@ -6,7 +6,46 @@
 // Demonstrate how to register services
 // In this case it is a simple value service.
 angular.module('mathador.services', []).
-	factory('peerjs', function() {
+	factory('colorpool', function() {
+		var colorpool = {
+			available: ["red", "green", "yellow", "blue"],
+			// clients[id] -> colorInd
+			clients: {}
+		};
+
+		colorpool.free = function () {
+			var array = this.available.slice(0); 
+			for (var i in this.clients) {
+				array.splice(this.clients[i], 1);	
+			}
+			return array;
+		}
+
+		colorpool.get= function (id) {
+			if (typeof(this.clients[id]) != 'undefined') {
+				// registered, return color
+				return this.available[this.clients[id]];
+			}
+			var free = this.free();
+			if (free.length === 0) {
+				return false
+			}
+			var index = this.available.indexOf(free[0]);
+			this.clients[id] = index;
+
+			return this.available[this.clients[id]];
+		}
+
+		colorpool.release= function (id) {
+			if (typeof(this.clients[id]) != 'undefined') {
+				delete this.clients[id];
+				console.log("type: " + typeof(this.clients[id]));
+			}
+		}
+		
+		return colorpool;
+	}).
+	factory('peerjs', ['colorpool', function(colorpool) {
 		var peerjs = {
 			peers: [],
 			connection: "disconnected",
@@ -55,7 +94,6 @@ angular.module('mathador.services', []).
 			for (var i in this.peers) {
 				var conn = this.peers[i];
 				if (conn.open) {
-					console.log("sending data: " + data);
 					conn.send(data);
 				}
 			}
@@ -64,8 +102,6 @@ angular.module('mathador.services', []).
 		peerjs.handleConnection = function (c) {
 			c.on('data', function(d) {
 				for (var i = 0; i < peerjs.dataCallbacks.length; i++) {
-					console.log("function data:");
-					console.log(d);
 					peerjs.dataCallbacks[i](c, d);
 				}
 			});
@@ -75,11 +111,13 @@ angular.module('mathador.services', []).
 			});
 
 			c.on('open', function() {
+				c.color = colorpool.get(c.peer);
 				peerjs.peers[c.peer] = c;
 				peerjs.changePeers(peerjs.peers);
 			});
 
 			c.on('close', function() {
+				colorpool.release(c.peer);
 				peerjs.peers[c.peer] = {};
 				peerjs.changePeers(peerjs.peers);
 			});
@@ -121,5 +159,5 @@ angular.module('mathador.services', []).
 		}
 
 		return peerjs;
-	}).
+	}]).
   value('version', '0.1');
