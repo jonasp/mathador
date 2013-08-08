@@ -79,7 +79,6 @@ angular.module('mathador.controllers', []).
 		}
 
 		function pushMessage(msg) {
-			// TODO: put messages into ordered hash so they don't duplicate
 			$scope.messages.push(msg);
 			while ($scope.messages.length > 7) {
 				$scope.messages.shift();
