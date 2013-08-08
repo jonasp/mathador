@@ -93,31 +93,58 @@ angular.module('mathador.controllers', []).
 			}
 		}
 	}]).
-	controller('PointerCtrl', ['$scope', 'peerjs', function($scope, peerjs) {
+
+	controller('PointerCtrl', ['$scope', 'peerjs', '$timeout', function($scope, peerjs, $timeout) {
 		$scope.transmit = false;
 		$scope.pointers = {};
 
+		//$scope.pointers["test"] = { x: 100, y: 100, color: "black" };
+
 		peerjs.onData(function (conn, data) {
 			if (data.app === 'pointer') {
-				console.log("data");
-				$scope.pointers[conn.peer] = {
-					x: data.pos.x,
-					y: data.pos.y,
-					color: conn.color	
-				};
+				if (data.type === 'move') {
+					$scope.pointers[conn.peer] = {
+						x: data.pos.x,
+						y: data.pos.y,
+						color: conn.color
+					};
+				}
+				if (data.type === 'click') {
+					$timeout(function () {
+						$scope.pointers[conn.peer].preclicking = true;
+					});
+					$timeout(function () {
+						$scope.pointers[conn.peer].clicking = "clicking";
+					}, 20);
+					$timeout(function () {
+						$scope.pointers[conn.peer].clicking = "";
+						$scope.pointers[conn.peer].preclicking = false
+					}, 2000);
+				}
 			}
 			$scope.$apply();
 		});
+
+		document.onmousedown = function (event) {
+			if ($scope.transmit) {
+				peerjs.broadcast({
+					app: 'pointer',
+					type: 'click'
+				});
+			}
+		}
 
 		document.onmousemove = function (event) {
 			if ($scope.transmit) {
 				peerjs.broadcast({
 					app: 'pointer',
+					type: 'move',
 					pos: {x: event.x, y: event.y}
 				});
 			}
 		};
 	}]).
+
 	controller('ChatCtrl', ['$scope', 'peerjs', function($scope, peerjs) {
 		$scope.chatinput = "";
 		$scope.messages = [{
@@ -159,6 +186,7 @@ angular.module('mathador.controllers', []).
 			}
 		}
 	}]).
+
 	controller('PeerCtrl',['$scope', 'peerjs', 'colorpool', function($scope, peerjs, colorpool) {
 
 		var peer = {};
@@ -226,6 +254,4 @@ angular.module('mathador.controllers', []).
 				peerjs.connect($scope.friendid);
 			}
 		}
-
-
 	}]);

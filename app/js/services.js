@@ -39,7 +39,6 @@ angular.module('mathador.services', []).
 		colorpool.release= function (id) {
 			if (typeof(this.clients[id]) != 'undefined') {
 				delete this.clients[id];
-				console.log("type: " + typeof(this.clients[id]));
 			}
 		}
 		

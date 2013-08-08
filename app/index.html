@@ -33,6 +33,7 @@
 			<div id="mousePointerControl" ng-controller="PointerCtrl">
 				<input type="checkbox" ng-model="transmit"/> transmit mouse position?
 				<div ng-repeat="p in pointers" ng-style="{ left: p.x + 'px', top: p.y + 'px' }" class="pointer">
+					<div class="click" ng-style="{'border-color': p.color}" ng-show="p.preclicking" ng-class="p.clicking">&nbsp;</div>
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Taken from TowTruck (https://github.com/mozilla/towtruck/). -->
 <!-- This work is under the Mozilla Public License, v.2.0. -->
