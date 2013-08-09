@@ -56,10 +56,10 @@
 			</div>
 		</div>
 	</div>
-	<div id="main" ng-repeat="line in lines">
-		<div ng-click="activate({{line.number}})" id="output{{line.number}}">
-			<span class="lineNumber">{{line.number + 1}}&gt;</span> <span class="formula" ng-resize="size" ng-mathjax="line.content"></span><br/>
-			<input id="texinput" focus="{{active}}" ng-show="active == line.number" ng-keyup="keyup($event, line.number)" ng-keydown="keydown($event, line.number)" type="text" ng-model="line.content"/>
+	<div id="main" ng-repeat="line in lines track by $index">
+		<div ng-click="activate({{$index}})" id="output{{$index}}">
+			<span class="lineNumber">{{$index + 1}}&gt;</span> <span class="formula" ng-resize="size" ng-mathjax="line"></span><br/>
+			<input id="texinput" focus="{{active}}" ng-show="active == $index" ng-change="push($index)" ng-keydown="keydown($event, $index)" type="text" ng-model="lines[$index]"/>
 		</div>
 	</div>
 

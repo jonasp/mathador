@@ -3,93 +3,43 @@
 /* Controllers */
 
 angular.module('mathador.controllers', []).
-	controller('MathadorCtrl',['$scope', 'broadcast', function($scope, broadcast) {
+	controller('MathadorCtrl',['$scope', 'broadcast', 'editor', function($scope, broadcast, editor) {
 
-		$scope.lines = [
-			{ number: 0, content: "" }
-		];
+		$scope.lines = [""];
 
-		$scope.active = 0;
+		$scope.lines = editor.lines;
 
-		function removeLine(lines, index) {
-			if ($scope.lines.length > 1) {
-				lines.splice(index, 1);
-				for (var i = 0; i < lines.length; i++) {
-					lines[i].number = i;
-				}
-			}
-		}
+		$scope.$watch( function () { return editor.lines }, function (data) {
+			$scope.lines = data;
+		}, true);
 
-		broadcast.onData(function (conn, data) {
-			if (data.app === 'tex') {
-				if (data.type === 'activation') {
-					// incoming has more lines than us
-					for (var i = $scope.lines.length; data.lineNumber >= $scope.lines.length; i++) {
-						$scope.lines.push({ number: i, content: ""});
-					}
-					$scope.$apply();
-					console.log(conn.peer + ' activated line ' + data.lineNumber);
-				}
-
-				if (data.type === 'update') {
-					$scope.lines[data.lineNumber].content = data.content;
-					$scope.$apply();
-				}
-			}
+		$scope.$watch( function () { return editor.active }, function (data) {
+			$scope.active = data;
 		});
 
-		$scope.activate = function(lineNumber) {
-			if ($scope.active != lineNumber) {
-				if ($scope.lines[$scope.active].content === "") {
-					removeLine($scope.lines, $scope.active);
-				}
-				$scope.active = lineNumber;
-				broadcast.send({
-					app: 'tex',
-					type: 'activation',
-					lineNumber: $scope.active
-				});
-			}
-		}
+		$scope.activate = editor.activate;
+
+		$scope.push = editor.push;
 
 		$scope.keydown = function ($event, lineNumber) {
 			if ($event.keyCode === 8) { // backspace
-				if ($scope.lines[$scope.active].content === "" && $scope.lines.length > 1) {
-					$scope.activate($scope.active-1);
+				if ($scope.lines[editor.active] === "" && $scope.lines.length > 1) {
+					editor.removeLine(editor.active);
+					editor.activate(editor.active-1);
+					editor.push();
 					$event.preventDefault();
 				}
 			}
 			if ($event.keyCode === 13) { // enter
-				if ($scope.lines[lineNumber].content == "") {
+				if ($scope.lines[lineNumber] === "") {
 					// empty - do nothing
 				} else {
 					var nextLine = "";
 					if ($event.shiftKey) {
-						nextLine = $scope.lines[$scope.active].content
+						nextLine = editor.lines[editor.active]
 					}
-
-					$scope.lines.push({
-						number: $scope.lines.length,
-						content: nextLine
-					})
-					$scope.active++;
-					broadcast.send({
-						app: 'tex',
-						type: 'activation',
-						lineNumber: $scope.active
-					});
+					editor.newLine(nextLine);
 				}
-			}
-		}
-
-		$scope.keyup = function ($event, lineNumber) {
-			if ($event.keyCode != 13) {
-				broadcast.send({
-					app: 'tex',
-					type: 'update',
-					lineNumber: $scope.active,
-					content: $scope.lines[$scope.active].content
-				});
 			}
 		}
 	}]).

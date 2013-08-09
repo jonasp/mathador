@@ -44,6 +44,75 @@ angular.module('mathador.services', []).
 		
 		return colorpool;
 	}).
+
+	factory('editor', ['broadcast', function (broadcast) {
+		var editor = {
+			local: true
+		};
+
+		editor.lines = [""];
+		editor.active = -1;
+
+		editor.removeLine = function (index) {
+			if (editor.lines.length > 1) {
+				editor.lines.splice(index, 1);
+			}
+		}
+
+		broadcast.onData(function (conn, data) {
+			if (data.app === 'tex') {
+				//if (data.type === 'activation') {
+					//// incoming has more lines than us
+					//for (var i = $scope.lines.length; data.lineNumber >= $scope.lines.length; i++) {
+						//$scope.lines.push("");
+					//}
+					//$scope.$apply();
+					//console.log(conn.peer + ' activated line ' + data.lineNumber);
+				//}
+
+				if (data.type === 'update') {
+					if (editor.active > data.lines.length) {
+						editor.active = -1;
+					}
+					editor.lines = data.lines;
+				}
+			}
+		});
+
+		editor.push = function (lineNumber) {
+			// TODO: now we are sending all the lines
+			// maybe it will be sufficient send only
+			// only updated line.
+			broadcast.send({
+				app: 'tex',
+				type: 'update',
+				lines: editor.lines
+			});
+		}
+
+		editor.activate = function (lineNumber) {
+			if (editor.active != lineNumber) {
+				//if (editor.lines[editor.active] === "") {
+					//editor.removeLine($scope.active);
+				//}
+				editor.active = lineNumber;
+				broadcast.send({
+					app: 'tex',
+					type: 'activation',
+					lineNumber: editor.active
+				});
+			}
+		}
+
+		editor.newLine = function (nextLine) {
+			editor.lines.push(nextLine);
+			editor.activate(editor.active + 1);
+			editor.push();
+		}
+
+		return editor;
+	}]).
+
 	factory('broadcast', ['colorpool', function(colorpool) {
 		var broadcast = {
 			peers: [],
