@@ -4,8 +4,8 @@
 	<meta charset="utf-8">
 	<title>Mathador</title>
 
-	<!--peer.js-->
-	<script src="http://cdn.peerjs.com/0/peer.min.js"></script>
+	<!-- socket.io -->
+	<script src="/socket.io/socket.io.js"></script>
 
 	<!-- mathjax -->
 	<script type="text/x-mathjax-config">
@@ -71,9 +71,6 @@
 			<button ng-init="buttonMsg='go online'">{{buttonMsg}}</button><br/>
 		</form>
 		<div ng-show="connectionStatus == 'connected'">
-			<form ng-submit="add()">
-				Add: <input id ="" label="add" type="text" ng-model="friendid"/><button>add</button><br/>
-			</form>
 			Peers:
 			<span ng-repeat="p in peers track by $index">
 				<span ng-style="{color: p.color}">{{p.peer}}</span><span ng-hide="$last">, </span>

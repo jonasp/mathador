@@ -131,106 +131,117 @@ angular.module('mathador.services', []).
 		};
 
 		broadcast.init = function(id) {
-			if (typeof(this.peer) != 'undefined' && !this.peer.destroyed) {
-				this.peer.destory();
+			var host = '/';
+			if (typeof(broadcast.socket) === 'undefined') {
+				broadcast.socket = io.connect(host);
+			} else if (!broadcast.socket.socket.connected) {
+				broadcast.socket = io.connect(host, { 'force new connection': true });
 			}
-			this.changeConnection("connecting");
-			this.peer = new Peer(id, { key: '46505tj9a6zp8pvi'});
+			broadcast.changeConnection("connecting");
 
-			this.peer.on('open', function(id) {
+			broadcast.socket.on('connect', function() {
+
+				broadcast.socket.emit('get peers', function (peers) {
+					for (var i in peers) {
+						broadcast.peers[peers[i]] = {
+							peer: peers[i],
+							color: colorpool.get(peers[i])
+						};
+					}
+					broadcast.changePeers(broadcast.peers);
+				});
+
+				broadcast.socket.emit('set id', id);
+
 				broadcast.changeConnection("connected");
+
+				broadcast.socket.on('disconnect', function () {
+					broadcast.changeConnection("disconnected");
+				});
+
+				broadcast.socket.on('client connected', function (id) {
+					broadcast.peers[id] = {
+						peer: id,
+						color: colorpool.get(id)
+					};
+					broadcast.changePeers(broadcast.peers);
+				});
+
+				broadcast.socket.on('broadcast', function(d) {
+					for (var i = 0; i < broadcast.dataCallbacks.length; i++) {
+						broadcast.dataCallbacks[i]({
+							peer: d.id,
+							color: colorpool.get(d.id)
+						}, d.data);
+					}
+				});
+
+				broadcast.socket.on('client disconnected', function (id) {
+					delete broadcast.peers[id];
+					broadcast.changePeers(broadcast.peers);
+				});
+
 			});
 
-			this.peer.on('error', function(error) {
+			broadcast.socket.on('error', function(error) {
 				broadcast.changeConnection("disconnected");
-				broadcast.error(error.type);
-			});
-
-			this.peer.on('connection', function(connection, meta) {
-				broadcast.handleConnection(connection);
+				broadcast.error(error);
 			});
 		}
 
 		broadcast.connect = function (id) {
 			var dataConnection = broadcast.peer.connect(id);
 			if (typeof(dataConnection) != 'undefined') {
-				this.handleConnection(dataConnection);	
+				broadcast.handleConnection(dataConnection);
 			}
 		}
 
 		broadcast.disconnect = function () {
-			if (typeof(this.peer) != 'undefined' && !this.peer.destroyed) {
-				this.peer.destroy();
-				this.changeConnection("disconnected");
+			if (typeof(broadcast.socket) != 'undefined' && broadcast.socket.socket.connected) {
+				broadcast.socket.disconnect();
+				broadcast.changeConnection("disconnected");
 			}
 		}
 
 		broadcast.send = function (data) {
-			for (var i in this.peers) {
-				var conn = this.peers[i];
-				if (conn.open) {
-					conn.send(data);
-				}
+			if (typeof(broadcast.socket) != 'undefined' && broadcast.socket.socket.connected) {
+				broadcast.socket.emit('broadcast', data);
 			}
-		}
-
-		broadcast.handleConnection = function (c) {
-			c.on('data', function(d) {
-				for (var i = 0; i < broadcast.dataCallbacks.length; i++) {
-					broadcast.dataCallbacks[i](c, d);
-				}
-			});
-
-			c.on('error', function(error) {
-				broadcast.error(error.type);
-			});
-
-			c.on('open', function() {
-				c.color = colorpool.get(c.peer);
-				broadcast.peers[c.peer] = c;
-				broadcast.changePeers(broadcast.peers);
-			});
-
-			c.on('close', function() {
-				colorpool.release(c.peer);
-				broadcast.peers[c.peer] = {};
-				broadcast.changePeers(broadcast.peers);
-			});
 		}
 
 		broadcast.changeConnection = function (value) {
-			for (var i = 0; i < this.connectionCallbacks.length; i++) {
-				this.connectionCallbacks[i](value);
+			for (var i = 0; i < broadcast.connectionCallbacks.length; i++) {
+				broadcast.connectionCallbacks[i](value);
 			}
-			this.connection = value;
+			broadcast.connection = value;
 		}
 
 		broadcast.onConnectionChange = function(fn) {
-			this.connectionCallbacks.push(fn);
+			broadcast.connectionCallbacks.push(fn);
 		};
 
 		broadcast.onData = function (fn) {
-			this.dataCallbacks.push(fn);
+			broadcast.dataCallbacks.push(fn);
 		};
 
 		broadcast.error = function (error) {
-			for (var i = 0; i < this.errorCallbacks.length; i++) {
-				this.errorCallbacks[i](error);
+			for (var i = 0; i < broadcast.errorCallbacks.length; i++) {
+				broadcast.errorCallbacks[i](error);
 			}
 		}
 
 		broadcast.onError = function (fn) {
-			this.errorCallbacks.push(fn);
+			broadcast.errorCallbacks.push(fn);
 		};
 
 		broadcast.changePeers = function (peers) {
-			for (var i = 0; i < this.peersCallbacks.length; i++) {
-				this.peersCallbacks[i](peers);
+			for (var i = 0; i < broadcast.peersCallbacks.length; i++) {
+				broadcast.peersCallbacks[i](peers);
 			}
 		}
 
 		broadcast.onPeersChange = function (fn) {
-			this.peersCallbacks.push(fn);
+			broadcast.peersCallbacks.push(fn);
 		}
 
 		return broadcast;

@@ -48,8 +48,6 @@ angular.module('mathador.controllers', []).
 		$scope.transmit = false;
 		$scope.pointers = {};
 
-		//$scope.pointers["test"] = { x: 100, y: 100, color: "black" };
-
 		broadcast.onData(function (conn, data) {
 			if (data.app === 'pointer') {
 				if (data.type === 'move') {
