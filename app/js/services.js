@@ -7,42 +7,49 @@
 // In this case it is a simple value service.
 angular.module('mathador.services', []).
 	factory('colorpool', function() {
-		var colorpool = {
+		var cp = {
+			default: "black",
 			available: ["red", "green", "yellow", "blue"],
 			// clients[id] -> colorInd
 			clients: {}
 		};
 
-		colorpool.free = function () {
-			var array = this.available.slice(0); 
-			for (var i in this.clients) {
-				array.splice(this.clients[i], 1);	
+		cp.free = function () {
+			var array = cp.available.slice(0);
+
+			for (var key in cp.clients) {
+				array.splice(array.indexOf(cp.available[cp.clients[key]]), 1);
 			}
 			return array;
 		}
 
-		colorpool.get= function (id) {
-			if (typeof(this.clients[id]) != 'undefined') {
+		cp.get = function (id) {
+			if (typeof(cp.clients[id]) != 'undefined') {
 				// registered, return color
-				return this.available[this.clients[id]];
+				var color = cp.default;
+				if (cp.clients[id] >= 0) {
+					color = cp.available[cp.clients[id]];
+				}
+				return color
 			}
-			var free = this.free();
+			var free = cp.free();
 			if (free.length === 0) {
-				return false
+				cp.clients[id] = -1;
+				return cp.default;
 			}
-			var index = this.available.indexOf(free[0]);
-			this.clients[id] = index;
+			var index = cp.available.indexOf(free[0]);
+			cp.clients[id] = index;
 
-			return this.available[this.clients[id]];
+			return cp.available[cp.clients[id]];
 		}
 
-		colorpool.release= function (id) {
-			if (typeof(this.clients[id]) != 'undefined') {
-				delete this.clients[id];
+		cp.release= function (id) {
+			if (typeof(cp.clients[id]) != 'undefined') {
+				delete cp.clients[id];
 			}
 		}
 		
-		return colorpool;
+		return cp;
 	}).
 
 	factory('editor', ['broadcast', function (broadcast) {
