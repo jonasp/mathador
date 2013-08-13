@@ -63,31 +63,31 @@
 		</div>
 	</div>
 
-	<div ng-controller="PeerCtrl">
-		<div ng-init="test='testing'"></div>
-		<form ng-submit="connect()">
-			Name:
-			<input id="peerid" label="name" type="text" ng-model="peerid" ng-disabled="connectionStatus == 'connecting' || connectionStatus == 'connected'" />
-			<button ng-init="buttonMsg='go online'">{{buttonMsg}}</button><br/>
-		</form>
-		<div ng-show="connectionStatus == 'connected'">
-			Peers:
-			<span ng-repeat="p in peers track by $index">
-				<span ng-style="{color: p.color}">{{p.peer}}</span><span ng-hide="$last">, </span>
-			</span>
-			<br/>
-			<div id="chat" ng-controller="ChatCtrl">
-				<form ng-submit="send()">
-					Message: <input id="chatinput" type="text" ng-model="chatinput"/>
-				</form>
-				<div ng-repeat="m in messages track by $index">
-					<span ng-show="m.sender" ng-style="{color: m.color}">{{m.sender}}:</span>
-					<span>{{m.message}}</span>
-				</div>
-			</div>
-		</div>
-		<div id="error" ng-show="error">Error: {{error}}</div>
-	</div>
+ <!-- <div ng-controller="PeerCtrl">-->
+		<!--<div ng-init="test='testing'"></div>-->
+		<!--<form ng-submit="connect()">-->
+			<!--Name:-->
+			<!--<input id="peerid" label="name" type="text" ng-model="peerid" ng-disabled="connectionStatus == 'connecting' || connectionStatus == 'connected'" />-->
+			<!--<button ng-init="buttonMsg='go online'">{{buttonMsg}}</button><br/>-->
+		<!--</form>-->
+		<!--<div ng-show="connectionStatus == 'connected'">-->
+			<!--Peers:-->
+			<!--<span ng-repeat="p in peers track by $index">-->
+				<!--<span ng-style="{color: p.color}">{{p.peer}}</span><span ng-hide="$last">, </span>-->
+			<!--</span>-->
+			<!--<br/>-->
+			<!--<div id="chat" ng-controller="ChatCtrl">-->
+				<!--<form ng-submit="send()">-->
+					<!--Message: <input id="chatinput" type="text" ng-model="chatinput"/>-->
+				<!--</form>-->
+				<!--<div ng-repeat="m in messages track by $index">-->
+					<!--<span ng-show="m.sender" ng-style="{color: m.color}">{{m.sender}}:</span>-->
+					<!--<span>{{m.message}}</span>-->
+				<!--</div>-->
+			<!--</div>-->
+		<!--</div>-->
+		<!--<div id="error" ng-show="error">Error: {{error}}</div>-->
+	<!--</div>-->
 
 	<!-- In production use:
 	<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.0.7/angular.min.js"></script>
