@@ -5,6 +5,6 @@
 	"private": true,
 	"dependencies": {
 		"connect": "2.8.x",
-		"socket.io": "0.9.x"
+		"share": "0.6.x"
 	}
 }

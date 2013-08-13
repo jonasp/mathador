@@ -52,13 +52,59 @@ angular.module('mathador.services', []).
 		return cp;
 	}).
 
-	factory('editor', ['broadcast', function (broadcast) {
-		var editor = {
-			local: true
-		};
+	factory('editor', ['$rootScope', function ($rootScope) {
+		var editor = {};
 
 		editor.lines = [""];
-		editor.active = -1;
+
+		var applyChange = function(doc, oldval, newval) {
+			var commonEnd, commonStart;
+
+			if (oldval === newval) {
+				return;
+			}
+			commonStart = 0;
+			while (oldval.charAt(commonStart) === newval.charAt(commonStart)) {
+				commonStart++;
+			}
+			commonEnd = 0;
+			while (oldval.charAt(oldval.length - 1 - commonEnd) === newval.charAt(newval.length - 1 - commonEnd) && commonEnd + commonStart < oldval.length && commonEnd + commonStart < newval.length) {
+				commonEnd++;
+			}
+			if (oldval.length !== commonStart + commonEnd) {
+				return doc.del(commonStart, oldval.length - commonStart - commonEnd);
+			}
+			if (newval.length !== commonStart + commonEnd) {
+				return doc.insert(commonStart, newval.slice(commonStart, newval.length - commonEnd));
+			}
+		};
+
+		sharejs.open('doc', 'text', function (error, doc) {
+			editor.snapshot = doc.snapshot;
+			if (editor.snapshot === '') {
+				editor.lines = [""];
+			} else {
+				editor.lines = editor.snapshot.split("\n");
+			}
+			editor.active = editor.lines.length - 1;
+			$rootScope.$apply();
+
+			editor.push = function () {
+				applyChange(doc, editor.snapshot, editor.lines.join("\n"));
+				editor.snapshot = doc.snapshot;
+			};
+
+			editor.newLine = function (nextLine) {
+				editor.lines.splice(editor.active + 1, 0, nextLine);
+				editor.activate(editor.active + 1);
+				editor.push();
+			}
+
+			doc.on('remoteop', function(op) {
+				editor.lines = doc.snapshot.split("\n");
+				$rootScope.$apply();
+			});
+		});
 
 		editor.removeLine = function (index) {
 			if (editor.lines.length > 1) {
@@ -66,55 +112,10 @@ angular.module('mathador.services', []).
 			}
 		}
 
-		broadcast.onData(function (conn, data) {
-			if (data.app === 'tex') {
-				//if (data.type === 'activation') {
-					//// incoming has more lines than us
-					//for (var i = $scope.lines.length; data.lineNumber >= $scope.lines.length; i++) {
-						//$scope.lines.push("");
-					//}
-					//$scope.$apply();
-					//console.log(conn.peer + ' activated line ' + data.lineNumber);
-				//}
-
-				if (data.type === 'update') {
-					if (editor.active > data.lines.length) {
-						editor.active = -1;
-					}
-					editor.lines = data.lines;
-				}
-			}
-		});
-
-		editor.push = function (lineNumber) {
-			// TODO: now we are sending all the lines
-			// maybe it will be sufficient send only
-			// only updated line.
-			broadcast.send({
-				app: 'tex',
-				type: 'update',
-				lines: editor.lines
-			});
-		}
-
 		editor.activate = function (lineNumber) {
 			if (editor.active != lineNumber) {
-				//if (editor.lines[editor.active] === "") {
-					//editor.removeLine($scope.active);
-				//}
 				editor.active = lineNumber;
-				broadcast.send({
-					app: 'tex',
-					type: 'activation',
-					lineNumber: editor.active
-				});
 			}
-		}
-
-		editor.newLine = function (nextLine) {
-			editor.lines.push(nextLine);
-			editor.activate(editor.active + 1);
-			editor.push();
 		}
 
 		return editor;

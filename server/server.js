@@ -1,39 +1,34 @@
-var connect = require('connect');
+var pjson = require('./package.json'),
+		connect = require('connect'),
+		sharejs = require('share').server;
 
-var app = connect().use(connect.static('app'))
-  , server = require('http').createServer(app)
-  , io = require('socket.io').listen(server);
+var port = 8080;
 
-server.listen(8080);
+var server = connect(connect.static('app'));
 
-var peers = {};
+var options = {
+	sockjs: {},
+	browserChannel: null,
+	rest: null,
+	socketio: null,
+	db: {type: 'redis'},
+	auth: function(client, action) {
+		action.accept();
+	}
+};
 
-io.sockets.on('connection', function (socket) {
-	socket.on('set id', function (id) {
-		socket.set('id', id, function() {
-			socket.broadcast.emit('client connected', id);
-			peers[id] = socket;
-		});
-	});
+console.log("Mathador v" + pjson.version);
+console.log("ShareJS v" + sharejs.version);
+console.log("Options: ", options);
 
-	socket.on('disconnect', function () {
-		socket.get('id', function (err, id) {
-			socket.broadcast.emit('client disconnected', id);
-			delete peers[id];
-		});
-	});
+// Attach sharejs REST and Websocket interfaces to server and start
+sharejs.attach(server, options).listen(port);
+console.log("Mathador server running at http://localhost:" + port);
 
-	socket.on('get peers', function (fn) {
-		var keys = Object.keys(peers);
-		fn(keys);
-	});
-
-	socket.on('broadcast', function(msg) {
-		socket.get('id', function (err, id) {
-			socket.broadcast.emit('broadcast', {
-				id: id,
-				data: msg
-			});
-		});
-	});
+process.title = 'mathador';
+process.on('uncaugtException', function (err) {
+	console.error('An error has occurred. Please contact the system administrator.');
+	console.error('Mathador Version ' + mathador.version);
+	console.error('ShareJS Version ' + sharejs.version);
+	console.error('error stack: ' + err.stack);
 });

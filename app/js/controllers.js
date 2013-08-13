@@ -5,10 +5,6 @@
 angular.module('mathador.controllers', []).
 	controller('MathadorCtrl',['$scope', 'broadcast', 'editor', function($scope, broadcast, editor) {
 
-		$scope.lines = [""];
-
-		$scope.lines = editor.lines;
-
 		$scope.$watch( function () { return editor.lines }, function (data) {
 			$scope.lines = data;
 		}, true);
@@ -19,14 +15,34 @@ angular.module('mathador.controllers', []).
 
 		$scope.activate = editor.activate;
 
-		$scope.push = editor.push;
+		$scope.push = function (i, newval) {
+			if (typeof(editor.push) == 'function') {
+				editor.lines[i] = newval;
+				editor.push();
+			}
+		};
 
 		$scope.keydown = function ($event, lineNumber) {
+			if ($event.keyCode === 38) { // up
+				if (editor.active > 0) {
+					editor.activate(editor.active-1);
+				}
+			}
+			if ($event.keyCode === 40) { // down
+				if (editor.active < editor.lines.length-1) {
+					editor.activate(editor.active+1);
+				}
+			}
+
 			if ($event.keyCode === 8) { // backspace
 				if ($scope.lines[editor.active] === "" && $scope.lines.length > 1) {
 					editor.removeLine(editor.active);
-					editor.activate(editor.active-1);
-					editor.push();
+					if (editor.active > 0) {
+						editor.activate(editor.active-1);
+					}
+					if (typeof(editor.push) == 'function') {
+						editor.push();
+					}
 					$event.preventDefault();
 				}
 			}
@@ -38,7 +54,9 @@ angular.module('mathador.controllers', []).
 					if ($event.shiftKey) {
 						nextLine = editor.lines[editor.active]
 					}
-					editor.newLine(nextLine);
+					if (typeof(editor.newLine) == 'function') {
+						editor.newLine(nextLine);
+					}
 				}
 			}
 		}
