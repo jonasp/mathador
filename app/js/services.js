@@ -52,7 +52,7 @@ angular.module('mathador.services', []).
 		return cp;
 	}).
 
-	factory('editor', ['$rootScope', function ($rootScope) {
+	factory('editor', ['$rootScope', '$location', function ($rootScope, $location) {
 		var editor = {};
 
 		editor.lines = [""];
@@ -79,7 +79,27 @@ angular.module('mathador.services', []).
 			}
 		};
 
-		sharejs.open('doc', 'text', function (error, doc) {
+		function s4() {
+			return Math.floor((1 + Math.random()) * 0x10000)
+				.toString(16)
+				.substring(1);
+		};
+
+		function guid() {
+			return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
+				s4() + '-' + s4() + s4() + s4();
+		}
+
+		var docId;
+		if ($location.path() === '' || $location.path() === '/') {
+			//docId = guid();
+			docId = s4() + s4();
+			$location.path(docId);
+		} else {
+			docId = $location.path().slice(1);
+		}
+
+		sharejs.open(docId, 'text', function (error, doc) {
 			editor.snapshot = doc.snapshot;
 			if (editor.snapshot === '') {
 				editor.lines = [""];
