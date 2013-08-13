@@ -34,16 +34,16 @@
 		<h1 id="title">Mathador</h1>
 		<div id="rightHeader">
 			<p id="size">Size: <input id="slider" type="range" min="1" max="30" value="10" ng-model="size"></p>
-			<div id="mousePointerControl" ng-controller="PointerCtrl">
+<!--			<div id="mousePointerControl" ng-controller="PointerCtrl">
 				<input type="checkbox" ng-model="transmit"/> transmit mouse position?
 				<div ng-repeat="p in pointers" ng-style="{ left: p.x + 'px', top: p.y + 'px' }" class="pointer">
 					<div class="click" ng-style="{'border-color': p.color}" ng-show="p.preclicking" ng-class="p.clicking">&nbsp;</div>
-<?xml version="1.0" encoding="utf-8"?>
+					<?xml version="1.0" encoding="utf-8"?> -->
 <!-- Taken from TowTruck (https://github.com/mozilla/towtruck/). -->
 <!-- This work is under the Mozilla Public License, v.2.0. -->
 <!-- A copy can be obtained at http://mozilla.org/MPL/2.0/. -->
 <!-- Generator: Adobe Illustrator 16.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
-<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
 <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
 	 width="15.147px" height="19.653px" viewBox="0 0 15.147 19.653" enable-background="new 0 0 15.147 19.653" xml:space="preserve">
 	 <path fill-rule="evenodd" clip-rule="evenodd" fill="{{p.color}}" d="M7.85,19.653c0,0,4.886-1.31,6.603-1.769
@@ -53,7 +53,7 @@
 	s-3.856-3.503-4.5-2.5c-0.393,0.688,2.023,4.821,3,5.501c0.978,0.679,3.021,1.998,4.016,3.02c0.995,1.023,0.902,0.97,0.902,0.97"/>
 </svg>
 				</div>
-			</div>
+			</div> -->
 		</div>
 	</div>
 	<div id="main" ng-repeat="line in lines track by $index">
