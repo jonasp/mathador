@@ -43,38 +43,7 @@ body {
 	resize: both;
 }
 
-#peerid {
-	width: 10em;
-}
-
 #error {
 	padding-top: 1em;
 	color: #ff0000;
-}
-
-.pointer {
-	position: absolute;
-	z-index: 9999;
-}
-
-.click {
-	position: absolute;
-	z-index: 9998;
-	width: 10px;
-	height: 10px;
-	margin: -5px 0 0 -5px;
-	border-radius: 20px;
-	border: 3px solid black;
-
-	transition: width 2s, height 2s, margin 2s, border 2s;
-	-moz-transition: width 2s, height 2s, margin 2s, border 2s;
-	-webkit-transition: width 2s, height 2s, margin 2s, border 2s;
-}
-
-.click.clicking {
-	width: 40px;
-	height: 40px;
-	margin: -20px 0 0 -20px;
-	border-radius: 20px;
-	border: 3px solid rgba(0, 0, 0, 0);
 }
