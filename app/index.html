@@ -3,13 +3,6 @@
 <head>
 	<meta charset="utf-8">
 	<title>Mathador</title>
-
-	<!-- sockjs -->
-	<script src="http://cdn.sockjs.org/sockjs-0.3.min.js"></script>
-
-	<!-- ShareJS -->
-	<script src="/share/share.js"></script>
-
 	<!-- mathjax -->
 	<script type="text/x-mathjax-config">
 		MathJax.Hub.Config({
@@ -102,11 +95,14 @@
 	<!-- In production use:
 	<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.0.7/angular.min.js"></script>
 	-->
-	<script src="lib/angular/angular-1.1.5.js"></script>
+	<script src="lib/angular/angular.js"></script>
+	<script src="lib/sockjs-client/sockjs.js"></script>
+	<script src="lib/ot/ot.js"></script>
 	<script src="js/app.js"></script>
 	<script src="js/services.js"></script>
 	<script src="js/controllers.js"></script>
 	<script src="js/filters.js"></script>
 	<script src="js/directives.js"></script>
+	<script src="lib/ot.services.js"></script>
 </body>
 </html>

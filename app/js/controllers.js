@@ -4,13 +4,11 @@
 
 angular.module('mathador.controllers', []).
 	controller('MathadorCtrl',['$scope', 'editor', '$location', function($scope, editor, $location) {
-		console.log($location);
-		console.log($location.path());
 		// $location.url() - $location.path()
 		var paramsString = $location.url().split($location.path())[1];
 
 		var params = {}
-		if (paramsString.length > 0 && paramsString.indexOf('?') == 0) {
+		if (paramsString && paramsString.length > 0 && paramsString.indexOf('?') == 0) {
 			paramsString = paramsString.slice(1);
 			var paramsList = paramsString.split('&');
 			for (var i = 0; i < paramsList.length; i++) {
@@ -77,5 +75,5 @@ angular.module('mathador.controllers', []).
 					}
 				}
 			}
-		}
+		};
 	}]);

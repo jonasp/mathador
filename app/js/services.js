@@ -52,79 +52,65 @@ angular.module('mathador.services', []).
 		return cp;
 	}).
 
-	factory('editor', ['$rootScope', '$location', function ($rootScope, $location) {
-		var editor = {};
-
-		editor.lines = [""];
-
-		var applyChange = function(doc, oldval, newval) {
-			var commonEnd, commonStart;
-
-			if (oldval === newval) {
-				return;
-			}
-			commonStart = 0;
-			while (oldval.charAt(commonStart) === newval.charAt(commonStart)) {
-				commonStart++;
-			}
-			commonEnd = 0;
-			while (oldval.charAt(oldval.length - 1 - commonEnd) === newval.charAt(newval.length - 1 - commonEnd) && commonEnd + commonStart < oldval.length && commonEnd + commonStart < newval.length) {
-				commonEnd++;
-			}
-			if (oldval.length !== commonStart + commonEnd) {
-				return doc.del(commonStart, oldval.length - commonStart - commonEnd);
-			}
-			if (newval.length !== commonStart + commonEnd) {
-				return doc.insert(commonStart, newval.slice(commonStart, newval.length - commonEnd));
-			}
-		};
-
+	// generate guids
+	factory('guid', [function () {
 		function s4() {
 			return Math.floor((1 + Math.random()) * 0x10000)
 				.toString(16)
 				.substring(1);
+		}
+
+		var guid = function () {
+			//return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
+				//s4() + '-' + s4() + s4() + s4();
+			return s4() + s4();
 		};
 
-		function guid() {
-			return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
-				s4() + '-' + s4() + s4() + s4();
-		}
+		return guid;
+	}]).
+	//factory('editor', ['ot', '$location', function (ot, $rootScope, $location) {
+	factory('editor', [
+			'ot', '$rootScope', '$location', 'guid',
+			function (ot, $rootScope, $location, guid) {
+		var editor = {};
+
+		editor.lines = [""];
 
 		var docId;
 		if ($location.path() === '' || $location.path() === '/') {
-			//docId = guid();
-			docId = s4() + s4();
+			docId = guid();
 			$location.path(docId);
 		} else {
 			docId = $location.path().slice(1);
 		}
+		
+		var textOt = ot.createText(docId);
 
-		sharejs.open(docId, 'text', function (error, doc) {
-			editor.snapshot = doc.snapshot;
-			if (editor.snapshot === '') {
-				editor.lines = [""];
-			} else {
-				editor.lines = editor.snapshot.split("\n");
+		$rootScope.$watch(textOt.getSnapshot, function(newValue) {
+			if (newValue) {
+				editor.lines = newValue.split("\n");
 			}
-			editor.active = editor.lines.length - 1;
-			$rootScope.$apply();
-
-			editor.push = function () {
-				applyChange(doc, editor.snapshot, editor.lines.join("\n"));
-				editor.snapshot = doc.snapshot;
-			};
-
-			editor.newLine = function (nextLine) {
-				editor.lines.splice(editor.active + 1, 0, nextLine);
-				editor.activate(editor.active + 1);
-				editor.push();
-			}
-
-			doc.on('remoteop', function(op) {
-				editor.lines = doc.snapshot.split("\n");
-				$rootScope.$apply();
-			});
 		});
+
+		//if (editor.snapshot === '') {
+			//editor.lines = [""];
+		//} else {
+			//if (editor.snapshot) {
+				//editor.lines = editor.snapshot.split("\n");
+			//}
+		//}
+		//editor.active = editor.lines.length - 1;
+
+		editor.push = function () {
+			textOt.snapshot = editor.lines.join("\n");
+			textOt.send();
+		};
+
+		editor.newLine = function (nextLine) {
+			editor.lines.splice(editor.active + 1, 0, nextLine);
+			editor.activate(editor.active + 1);
+			editor.push();
+		}
 
 		editor.removeLine = function (index) {
 			if (editor.lines.length > 1) {
