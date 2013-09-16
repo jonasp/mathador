@@ -6,7 +6,7 @@
 	<!-- mathjax -->
 	<script type="text/x-mathjax-config">
 		MathJax.Hub.Config({
-			extensions: ["tex2jax.js"],
+			extensions: ["tex2jax.js","MathEvents.js","MathZoom.js","MathMenu.js","toMathML.js","TeX/noErrors.js","TeX/noUndefined.js","TeX/AMSmath.js","TeX/AMSsymbols.js"],
 			jax: ["input/TeX", "output/HTML-CSS"],
 			tex2jax: {
 				inlineMath: [ ['$','$'] ],
@@ -21,8 +21,9 @@
 			"HTML-CSS": { availableFonts: ["TeX"] }
 		});
 	</script>
-	<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML.js"></script>
 
+	<!--<script type="text/javascript" src="lib/MathJax/MathJax.js"></script>-->
+	<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=AMS_HTML.js"></script>
 <link rel="stylesheet" href="css/app.css"/>
 </head>
 <body no-backspace ng-controller="MathadorCtrl">
