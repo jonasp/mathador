@@ -49,6 +49,14 @@
 	</div>
 
 	<!-- dependencies -->
+	<script src="lib/marked.js"></script>
+	<script type="text/javascript">
+		marked.setOptions({
+			gfm: true,
+			pedantic: false,
+			sanitize: true
+		});
+	</script>
 	<script src="lib/sockjs.js"></script>
 	<script src="lib/ot.js"></script>
 	<!-- angular and services -->
