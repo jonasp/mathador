@@ -7,43 +7,46 @@
 	src: local('Herr Von Muellerhoff Regular'), local('HerrVonMuellerhoff-Regular'), url(../font/header.woff) format('woff');
 }
 
-body {
-	padding: 1em 3em;
+html, body {
+	padding: 0;
+	margin: 0;
 }
 
-#header #title {
+header h1 {
 	font-family: 'Herr Von Muellerhoff', cursive;
 	font-size: 2.5em;
-	float: left;
+	margin: .2em .5em;
 }
 
-#header #rightHeader {
-	float: right;
-	margin: 2.5em;
+.ace_editor {
+	height: 100%;
+	border: 1px solid black;
+	border-radius: 4px;
+	box-shadow: 0px 0px 25px #888888;
 }
 
-#main {
-	clear: both;
+#editor {
+	left: 0px;
+	right: 50%;
+
+	margin: 1em;
 }
 
-.lineNumber {
-	font-family: 'Courier New', Courier, monospace;
+#view {
+	overflow: auto;
+	left: 50%;
+	right: 0px;
+
+	margin: 1em;
+	padding: 0em 1em;
+
+	border: 1px solid black;
+	border-radius: 4px;
+	box-shadow: 0px 0px 25px #888888;
 }
 
-.lineNumber, .formula {
-	font-size: 1.7em;
-}
-
-#texinput {
-	margin: 1em 3em;
-	padding: 0.4em;
-	font-size: 1em;
-	width: 80%;
-	height: 1.2em;
-	resize: both;
-}
-
-#error {
-	padding-top: 1em;
-	color: #ff0000;
+#editor, #view {
+	position: fixed;
+	top: 4em;
+	bottom: 0px;
 }

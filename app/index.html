@@ -22,30 +22,26 @@
 			"HTML-CSS": { availableFonts: ["TeX"] }
 		});
 	</script>
-
 	<!--<script type="text/javascript" src="lib/MathJax/MathJax.js"></script>-->
 	<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=AMS_HTML.js"></script>
 <link rel="stylesheet" href="css/app.css"/>
 </head>
 <body no-backspace ng-controller="MathadorCtrl">
-	<div id="header">
-		<h1 id="title">Mathador</h1>
-		<div ng-hide="export">
-			<div id="rightHeader">
-				<p id="size">Size: <input id="slider" type="range" min="1" max="30" value="10" ng-model="size"></p>
-			</div>
+	<div id="main">
+		<header id="header">
+			<h1>Mathador</h1>
+		</header>
+
+		<div id="editor">
+			<div ui-ace="{
+					useWrapMode: true,
+					mode: 'markdown',
+					onChange: push,
+					theme: 'dawn',
+					docId: docId
+				}" ng-model="content"></div>
 		</div>
-	</div>
-	<div ng-hide="export" id="main" ng-repeat="line in lines track by $index">
-		<div ng-click="activate({{$index}})" id="output{{$index}}">
-			<span class="lineNumber">{{$index + 1}}&gt;</span> <span class="formula" ng-resize="size" ng-mathjax="line"></span><br/>
-			<input id="texinput" focus="{{active}}" ng-show="active == $index" ng-change="push($index, lines[$index])" ng-keydown="keydown($event, $index)" type="text" ng-model="lines[$index]"/>
-		</div>
-	</div>
-	<div ng-show="export" id="main">
-		<div ng-repeat="line in lines track by $index">
-			<p style="margin: 0; padding: 0">{{lines[$index]}}</p>
-		</div>
+		<div id="view" mathdown ng-model="content"></div>
 	</div>
 
 	<!-- dependencies -->
@@ -68,6 +64,7 @@
 	<!-- angular and services -->
 	<script src="lib/angular.js"></script>
 
+	<script src="lib/ot.services.js"></script>
 	<script src="lib/ui-ace.js"></script>
 
 	<script src="js/app.js"></script>
@@ -75,6 +72,5 @@
 	<script src="js/controllers.js"></script>
 	<script src="js/filters.js"></script>
 	<script src="js/directives.js"></script>
-	<script src="lib/ot.services.js"></script>
 </body>
 </html>

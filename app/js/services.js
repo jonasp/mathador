@@ -68,14 +68,7 @@ angular.module('mathador.services', []).
 
 		return guid;
 	}]).
-	//factory('editor', ['ot', '$location', function (ot, $rootScope, $location) {
-	factory('editor', [
-			'ot', '$rootScope', '$location', 'guid',
-			function (ot, $rootScope, $location, guid) {
-		var editor = {};
-
-		editor.lines = [""];
-
+	factory('docId', ['$location', 'guid', function ($location, guid) {
 		var docId;
 		if ($location.path() === '' || $location.path() === '/') {
 			docId = guid();
@@ -83,48 +76,6 @@ angular.module('mathador.services', []).
 		} else {
 			docId = $location.path().slice(1);
 		}
-		
-		var textOt = ot.createText(docId);
-
-		$rootScope.$watch(textOt.getSnapshot, function(newValue) {
-			if (newValue) {
-				editor.lines = newValue.split("\n");
-			}
-		});
-
-		//if (editor.snapshot === '') {
-			//editor.lines = [""];
-		//} else {
-			//if (editor.snapshot) {
-				//editor.lines = editor.snapshot.split("\n");
-			//}
-		//}
-		//editor.active = editor.lines.length - 1;
-
-		editor.push = function () {
-			textOt.snapshot = editor.lines.join("\n");
-			textOt.send();
-		};
-
-		editor.newLine = function (nextLine) {
-			editor.lines.splice(editor.active + 1, 0, nextLine);
-			editor.activate(editor.active + 1);
-			editor.push();
-		}
-
-		editor.removeLine = function (index) {
-			if (editor.lines.length > 1) {
-				editor.lines.splice(index, 1);
-			}
-		}
-
-		editor.activate = function (lineNumber) {
-			if (editor.active != lineNumber) {
-				editor.active = lineNumber;
-			}
-		}
-
-		return editor;
+		return docId;
 	}]).
-
-  value('version', '0.1');
+	value('version', '0.1');
