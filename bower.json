@@ -9,8 +9,8 @@
 		"tests"
 	],
 	"dependencies": {
-		"angular": "1.2.0-rc.1",
 		"sockjs-client": "0.3.x",
+		"angular": "1.2.0-rc.2",
 		"MathJax": "*"
 	}
 }
