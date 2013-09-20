@@ -6,7 +6,7 @@ angular.module('mathador.controllers', []).
 	controller('MathadorCtrl',[ '$scope', '$location', 'docId',
 		function($scope, $location, docId) {
 			$scope.aceLoaded = function (editor) {
-				sharejs.open('hello', 'text', function (error, doc) {
+				sharejs.open(docId, 'text', function (error, doc) {
 					doc.attach_ace(editor);
 				});
 			};
