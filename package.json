@@ -6,6 +6,7 @@
 	"dependencies": {
 		"connect": "2.8.x",
 		"sockjs": "0.3.x",
+		"redis": "0.8.x",
 		"share": "0.6.x"
 	}
 }
