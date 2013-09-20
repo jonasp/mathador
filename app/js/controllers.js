@@ -5,7 +5,11 @@
 angular.module('mathador.controllers', []).
 	controller('MathadorCtrl',[ '$scope', '$location', 'docId',
 		function($scope, $location, docId) {
-			$scope.docId = docId;
+			$scope.aceLoaded = function (editor) {
+				sharejs.open('hello', 'text', function (error, doc) {
+					doc.attach_ace(editor);
+				});
+			};
 
 			// $location.url() - $location.path()
 			var paramsString = $location.url().split($location.path())[1];

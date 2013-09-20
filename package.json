@@ -4,8 +4,8 @@
 	"version": "0.0.1",
 	"private": true,
 	"dependencies": {
-		"node-ot": "0.0.x",
-		"express": "3.3.x",
-		"sockjs": "0.3.x"
+		"connect": "2.8.x",
+		"sockjs": "0.3.x",
+		"share": "0.6.x"
 	}
 }

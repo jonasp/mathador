@@ -1,1 +1,1 @@
-../../bower_components/angular-ot-ace/ui-ace.js
+../../bower_components/angular-ui-ace/ui-ace.js

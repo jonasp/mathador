@@ -1,5 +1,5 @@
 {
-	"name": "angular-ot",
+	"name": "mathador",
 	"version": "0.0.1",
 	"ignore": [
 		"**/.*",
@@ -11,9 +11,9 @@
 	"dependencies": {
 		"sockjs-client": "0.3.x",
 		"ace-builds": "1.1.x",
+		"angular-ui-ace": "0.0.x",
 		"angular": "1.2.0-rc.2",
 		"marked": "0.2.x",
-		"angular-ot-ace": "0.0.x",
 		"MathJax": "*"
 	}
 }
