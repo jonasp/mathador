@@ -16,6 +16,40 @@ header h1 {
 	font-family: 'Herr Von Muellerhoff', cursive;
 	font-size: 2.5em;
 	margin: .2em .5em;
+	float:left;
+}
+
+.navbar {
+	float: right;
+	margin: 1em;
+	background-color: #eee;
+	padding: .4em 0em;
+	border: 1px solid black;
+	border-radius: 4px;
+	box-shadow: 0px 0px 5px #888888;
+}
+
+.navbar a.first {
+	border-bottom-left-radius: 4px;
+	border-top-left-radius: 4px;
+}
+
+.navbar a.last {
+	border-bottom-right-radius: 4px;
+	border-top-right-radius: 4px;
+}
+
+.navbar a {
+	text-decoration: none;
+	color: black;
+	padding: .4em 1em;
+}
+
+.navbar a.active {
+	background-color: #ccc;
+}
+
+#main {
 }
 
 .ace_editor {
@@ -25,14 +59,19 @@ header h1 {
 	box-shadow: 0px 0px 25px #888888;
 }
 
-#editor {
+#editor, #editor_only {
 	left: 0px;
 	right: 50%;
 
 	margin: 1em;
 }
 
-#view {
+#editor_only {
+	right: 0px;
+}
+
+#view, #view_only {
+	display: block;
 	overflow: auto;
 	left: 50%;
 	right: 0px;
@@ -45,7 +84,11 @@ header h1 {
 	box-shadow: 0px 0px 25px #888888;
 }
 
-#editor, #view {
+#view_only {
+	left: 0px;
+}
+
+#editor, #view, #editor_only, #view_only {
 	position: fixed;
 	top: 4em;
 	bottom: 0px;
