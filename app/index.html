@@ -27,22 +27,18 @@
 </script>
 <link rel="stylesheet" href="css/app.css"/>
 </head>
-<body no-backspace ng-controller="MathadorCtrl">
+<body no-backspace>
 	<div id="main">
 		<header id="header">
 			<h1>Mathador</h1>
+			<div class="navbar" ng-controller="navCtrl">
+				<a class="first" ng-class="{active: state.current.name == 'view'}" ui-sref="view({docId: params.docId})">View</a>
+				<a ng-class="{active: state.current.name == 'edit'}" ui-sref="edit({docId: params.docId})">Edit</a>
+				<a class="last" ng-class="{active: state.current.name == 'edit_view'}" ui-sref="edit_view({docId: params.docId})">Split</a>
+			</div>
 		</header>
 
-		<div id="editor">
-			<div ui-ace="{
-					useWrapMode: true,
-					mode: 'markdown',
-					onLoad: aceLoaded,
-					theme: 'dawn',
-					docId: docId
-				}" ng-model="content"></div>
-		</div>
-		<div id="view" mathdown ng-model="content"></div>
+		<div ui-view></div>
 	</div>
 
 	<!-- dependencies -->
@@ -58,9 +54,10 @@
 	<script src="lib/share.js"></script>
 
 	<!-- angular and services -->
-	<!--<script src="lib/angular.min.js"></script>-->
-	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.0-rc.2/angular.min.js">
-	</script>
+	<script src="lib/angular.min.js"></script>
+	<!--<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.0-rc.2/angular.min.js">-->
+	<!--</script>-->
+	<script src="lib/angular-ui-router.min.js"></script>
 
 	<!-- ace editor -->
 	<script src="lib/ace.js"></script>

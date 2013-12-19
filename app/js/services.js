@@ -51,31 +51,17 @@ angular.module('mathador.services', []).
 		
 		return cp;
 	}).
-
-	// generate guids
-	factory('guid', [function () {
-		function s4() {
-			return Math.floor((1 + Math.random()) * 0x10000)
-				.toString(16)
-				.substring(1);
-		}
-
-		var guid = function () {
-			//return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
-				//s4() + '-' + s4() + s4() + s4();
-			return s4() + s4();
+	factory('sharejs', function() {
+		var docs = {};
+		return function (id, callback) {
+			if (docs.id !== undefined) {
+				callback(null, docs.id);
+			} else {
+				sharejs.open(id, 'text', function (error, doc) {
+					docs.id = doc;
+					callback(error, doc);
+				});
+			}
 		};
-
-		return guid;
-	}]).
-	factory('docId', ['$location', 'guid', function ($location, guid) {
-		var docId;
-		if ($location.path() === '' || $location.path() === '/') {
-			docId = guid();
-			$location.path(docId);
-		} else {
-			docId = $location.path().slice(1);
-		}
-		return docId;
-	}]).
+	}).
 	value('version', '0.1');
